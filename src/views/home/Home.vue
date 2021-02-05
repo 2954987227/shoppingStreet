@@ -3,113 +3,25 @@
     <nav-bar class="home-nav">
       <div slot="nav-bar-center">购物街</div>
     </nav-bar>
-    <home-swiper :banners="banners" ref="hSwiper"/>
-    <recommend-view :recommends="recommends"/>
-    <feature-view/>
-    <tab-control :titles="['流行', '新款', '精选']" class="tab-control"/>
-    <ul>
-      <li>哈哈哈1</li>
-      <li>哈哈哈2</li>
-      <li>哈哈哈3</li>
-      <li>哈哈哈4</li>
-      <li>哈哈哈5</li>
-      <li>哈哈哈6</li>
-      <li>哈哈哈7</li>
-      <li>哈哈哈8</li>
-      <li>哈哈哈9</li>
-      <li>哈哈哈10</li>
-      <li>哈哈哈11</li>
-      <li>哈哈哈12</li>
-      <li>哈哈哈13</li>
-      <li>哈哈哈14</li>
-      <li>哈哈哈15</li>
-      <li>哈哈哈16</li>
-      <li>哈哈哈17</li>
-      <li>哈哈哈18</li>
-      <li>哈哈哈19</li>
-      <li>哈哈哈20</li>
-      <li>哈哈哈21</li>
-      <li>哈哈哈22</li>
-      <li>哈哈哈23</li>
-      <li>哈哈哈24</li>
-      <li>哈哈哈25</li>
-      <li>哈哈哈26</li>
-      <li>哈哈哈27</li>
-      <li>哈哈哈28</li>
-      <li>哈哈哈29</li>
-      <li>哈哈哈30</li>
-      <li>哈哈哈31</li>
-      <li>哈哈哈32</li>
-      <li>哈哈哈33</li>
-      <li>哈哈哈34</li>
-      <li>哈哈哈35</li>
-      <li>哈哈哈36</li>
-      <li>哈哈哈37</li>
-      <li>哈哈哈38</li>
-      <li>哈哈哈39</li>
-      <li>哈哈哈40</li>
-      <li>哈哈哈41</li>
-      <li>哈哈哈42</li>
-      <li>哈哈哈43</li>
-      <li>哈哈哈44</li>
-      <li>哈哈哈45</li>
-      <li>哈哈哈46</li>
-      <li>哈哈哈47</li>
-      <li>哈哈哈48</li>
-      <li>哈哈哈49</li>
-      <li>哈哈哈50</li>
-      <li>哈哈哈51</li>
-      <li>哈哈哈52</li>
-      <li>哈哈哈53</li>
-      <li>哈哈哈54</li>
-      <li>哈哈哈55</li>
-      <li>哈哈哈56</li>
-      <li>哈哈哈57</li>
-      <li>哈哈哈58</li>
-      <li>哈哈哈59</li>
-      <li>哈哈哈60</li>
-      <li>哈哈哈61</li>
-      <li>哈哈哈62</li>
-      <li>哈哈哈63</li>
-      <li>哈哈哈64</li>
-      <li>哈哈哈65</li>
-      <li>哈哈哈66</li>
-      <li>哈哈哈67</li>
-      <li>哈哈哈68</li>
-      <li>哈哈哈69</li>
-      <li>哈哈哈70</li>
-      <li>哈哈哈71</li>
-      <li>哈哈哈72</li>
-      <li>哈哈哈73</li>
-      <li>哈哈哈74</li>
-      <li>哈哈哈75</li>
-      <li>哈哈哈76</li>
-      <li>哈哈哈77</li>
-      <li>哈哈哈78</li>
-      <li>哈哈哈79</li>
-      <li>哈哈哈80</li>
-      <li>哈哈哈81</li>
-      <li>哈哈哈82</li>
-      <li>哈哈哈83</li>
-      <li>哈哈哈84</li>
-      <li>哈哈哈85</li>
-      <li>哈哈哈86</li>
-      <li>哈哈哈87</li>
-      <li>哈哈哈88</li>
-      <li>哈哈哈89</li>
-      <li>哈哈哈90</li>
-      <li>哈哈哈91</li>
-      <li>哈哈哈92</li>
-      <li>哈哈哈93</li>
-      <li>哈哈哈94</li>
-      <li>哈哈哈95</li>
-      <li>哈哈哈96</li>
-      <li>哈哈哈97</li>
-      <li>哈哈哈98</li>
-      <li>哈哈哈99</li>
-      <li>哈哈哈100</li>
-    </ul>
-
+    <tab-control :titles="tabControlTitles"
+                 @tabClick="tabClick"
+                 ref="tabControl02"
+                 class="fixed"
+                 v-show="isTabFixed"/>
+    <scroll class="home-content"
+            ref="scroll"
+            :probe-type="3"
+            @scroll="contentScroll"
+            :pull-up-load="true"
+            @pullingUp="loadMore">
+      <home-swiper :banners="banners" ref="hSwiper" @imageLoad="swiperImageLoad"/>
+      <recommend-view :recommends="recommends"/>
+      <feature-view/>
+      <tab-control :titles="tabControlTitles" @tabClick="tabClick" ref="tabControl01"/>
+      <goods-list :goods="showGoodsList"></goods-list>
+    </scroll>
+    <!--组件标签使用@click必须加native-->
+    <back-top @click.native="btClick" v-show="isShowBackTop"/>
   </div>
 </template>
 
@@ -120,8 +32,12 @@
 
   import NavBar from 'components/common/navBar/NavBar'
   import TabControl from 'components/content/tabControl/TabControl'
+  import GoodsList from 'components/content/goods/GoodsList'
+  import Scroll from 'components/common/scroll/Scroll'
+  import BackTop from 'components/content/backTop/BackTop'
 
-  import {getHomeMultidata} from "network/home";
+  import {getHomeMultidata, getHomeGoods} from "network/home";
+  import {debounce} from "common/utils/debounce";
 
 
   export default {
@@ -132,55 +48,180 @@
       FeatureView,
 
       NavBar,
-      TabControl
+      TabControl,
+      GoodsList,
+      BackTop,
+      Scroll,
     },
     data() {
       return {
         banners: [],
         recommends: [],
-        goods: {
-          'pop': {page: 1, list: []},
-          'news': {page: 1, list: []},
-          'sell': {page: 1, list: []}
-        }
+        goodsList: {
+          'pop': {page: 0, list: []},
+          'new': {page: 0, list: []},
+          'sell': {page: 0, list: []}
+        },
+        tabControlTitles: ['流行', '新款', '精选'],
+        currentType:'pop',
+        // Scroll
+        isShowBackTop: false,
+        offsetTop: 0,
+        isTabFixed:false,
+        saveY: 0
       }
     },
     created() {
-      getHomeMultidata().then(res => {
-        console.log(res);
-        this.banners = res.data.banner.list
-        this.recommends = res.data.recommend.list
+      this.getHomeMultidata()
+      this.getHomeGoods('pop')
+      this.getHomeGoods('new')
+      this.getHomeGoods('sell')
+
+
+    },
+    mounted() {
+      const refresh = debounce(this.$refs.scroll.refresh, 20)
+      this.$bus.$on('itemImageLoad', () => {
+        refresh()
       })
+
+
+    },
+    destroyed() {
+      console.log('destroyed');
+    },
+    methods: {
+      /**
+       * 网络请求相关
+       */
+      getHomeMultidata() {
+        getHomeMultidata().then(res => {
+          console.log(res);
+          this.banners = res.data.banner.list
+          this.recommends = res.data.recommend.list
+        })
+      },
+      getHomeGoods(type) {
+        const page = this.goodsList[type].page + 1
+        getHomeGoods(type, page).then(res => {
+          console.log(res);
+          const goodsList = res.data.list
+          this.goodsList[type].list.push(...goodsList)
+          this.goodsList[type].page += 1
+        }).catch(err => {
+          console.log(type + '请求失败');
+        })
+      },
+
+      /**
+       * 事件监听相关
+       */
+      tabClick(index) {
+        // console.log(index);
+        switch (index) {
+          case 0:
+            this.currentType = 'pop'
+            break
+          case 1:
+            this.currentType = 'new'
+            break
+          case 2:
+            this.currentType = 'sell'
+            break
+        }
+        this.$refs.tabControl02.currentIndex = index
+        this.$refs.tabControl01.currentIndex = index
+      },
+      btClick(){
+        this.$refs.scroll.scrollTo(0, 0, 500) //500ms内返回顶部
+      },
+      contentScroll(position) {
+        this.isShowBackTop = position.y < -1000
+
+        this.isTabFixed = position.y < -this.offsetTop
+      },
+      loadMore() {
+        this.getHomeGoods(this.currentType)
+        this.$refs.scroll.finishPullUp()
+      },
+      swiperImageLoad() {
+        //利用offsetTop属性达到吸顶效果
+        //所有组件都有一个$el属性，用于获取组件中元素（标签）
+        //element.offsetTop 返回当前元素的相对垂直偏移位置的偏移容器
+        this.offsetTop = this.$refs.tabControl01.$el.offsetTop
+        console.log(this.offsetTop);
+      }
+
+    },
+    computed: {
+      showGoodsList() {
+        console.log('showGoodsList...');
+        return this.goodsList[this.currentType].list
+      }
     },
     activated: function () {
-      this.$refs.hSwiper.startTimer()
+      // this.$refs.hSwiper.startTimer()
+
+      this.$refs.scroll.scrollTo(0, this.saveY, 0)
+      this.$refs.scroll.refresh()
     },
     deactivated: function () {
-      this.$refs.hSwiper.stopTimer()
+      // this.$refs.hSwiper.stopTimer()
+
+      this.saveY = this.$refs.scroll.getScrollY()
     },
   }
 </script>
 
 <style scoped>
   #home {
-    padding-top: 44px;
+    /*padding-top: 44px;*/
+
+    /*视口高度相对屏幕高100%*/
+    height: 100vh;
+    /*position: relative;*/
   }
 
   .home-nav {
     background-color: deeppink;
     color: white;
 
-    position: fixed;
+    /*position: fixed;
     left: 0;
     right: 0;
     top: 0;
 
+    z-index: 5;*/
+  }
+
+  .fixed {
+    position: relative;
     z-index: 5;
   }
 
-  .tab-control {
+  /*.tab-control {
     position: sticky;
     top: 43px;
+  }*/
+
+  .home-content {
+    overflow: hidden;
+
+    /*height: 400px;*/
+    position: absolute;
+    top: 44px;
+    bottom: 49px;
+    left: 0;
+    right: 0;
+
+
   }
+
+  /*.content {
+    height: calc(100% - 93px);
+    overflow: hidden;
+
+    margin-top: 44px;
+  }*/
 
 </style>

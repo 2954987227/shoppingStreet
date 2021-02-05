@@ -7,6 +7,8 @@ import './assets/img/tabbar/iconfont.css'
 
 Vue.config.productionTip = false
 
+Vue.prototype.$bus = new Vue() //事件总线
+
 new Vue({
   router,
   store,

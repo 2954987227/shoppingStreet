@@ -28,6 +28,7 @@
         methods: {
           itemClick(index) {
             this.currentIndex = index
+            this.$emit('tabClick', index)
           }
         }
     }
@@ -42,6 +43,7 @@
     line-height: 40px;
     background-color: #fff;
 
+    z-index: 5;
   }
 
   .tab-control-item {
