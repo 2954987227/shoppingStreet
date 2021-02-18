@@ -1,6 +1,6 @@
 <template>
     <div class="goods" @click="itemClick">
-      <img :src="item.show.img" @load="imageLoad">
+      <img v-lazy="showImg()" @load="imageLoad">
       <div class="goods-info">
         <p>{{item.title}}</p>
         <span class="price">¥{{item.price}}</span>
@@ -30,6 +30,9 @@
             path: 'detail',
             query: {iid: this.item.iid}
           })
+        },
+        showImg() {
+          return this.item.image || this.item.show.img
         }
       }
     }

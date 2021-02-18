@@ -1,13 +1,26 @@
 <template>
     <div id="detail">
-      <detail-nav-bar class="detail-nav-bar"/>
-      <scroll class="content" ref="scroll" :pullUpLoad="true">
-        <detail-swiper :topImages="topImages" @imageLoad="load"/>
+      <detail-nav-bar class="detail-nav-bar"
+                      @getTitleIndexClick="getTitleIndexClick"
+                      ref="navBar"
+                      :titles="['商品', '参数', '评论', '推荐']"
+                      :current-index="titleCurrentIndex"/>
+      <scroll class="content"
+              ref="scroll"
+              :pull-upLoad="true"
+              :probe-type="3"
+              @scroll="contentScroll">
+        <detail-swiper :top-images="topImages" @imageLoad="oneLoad"/>
         <detail-base-info :goods="goods"/>
         <DetailShopInfo :shop="shop"/>
-        <detail-goods-info :detail-info="detailInfo" @imageLoad="load"/>
-        <detail-param-info :paramInfo="paramInfo"/>
+        <detail-goods-info :detail-info="detailInfo" @imageLoad="moreLoad"/>
+        <detail-param-info ref="params" :paramInfo="paramInfo" @imageLoad="oneLoad"/>
+        <detail-comment-info ref="comment" :comment-info="commentInfo"/>
+        <goods-list ref="recommend" :goods="recommendInfo"/>
       </scroll>
+      <detail-bottom-bar @addToCart="addToCart"/>
+      <back-top @click.native="btClick" v-show="isShowBackTop"/>
+      <!--<toast :show="show" :message="message"/>-->
     </div>
 </template>
 
@@ -18,11 +31,22 @@
     import DetailBaseInfo from './childComps/DetailBaseInfo'
     import DetailGoodsInfo from './childComps/DetailGoodsInfo'
     import DetailParamInfo from './childComps/DetailParamInfo'
+    import DetailCommentInfo from './childComps/DetailCommentInfo'
+    import DetailBottomBar from './childComps/DetailBottomBar'
+
 
     import Scroll from 'components/common/scroll/Scroll'
+    import GoodsList from 'components/content/goods/GoodsList'
+    import BackTop from 'components/content/backTop/BackTop'
+    // import Toast from 'components/common/toast/Toast'
 
 
-    import {getDetail, Goods, Shop, GoodsParam} from "network/detail";
+
+    import {getDetail, Goods, Shop, GoodsParam, getRecommendInfo} from "network/detail";
+    import {imgListenerMixin, backTopMixim} from "common/mixin";
+    import {debounce} from "common/utils";
+
+    import {mapActions} from 'vuex'
 
     export default {
       name: "Detail",
@@ -33,7 +57,12 @@
         DetailShopInfo,
         Scroll,
         DetailGoodsInfo,
-        DetailParamInfo
+        DetailParamInfo,
+        DetailCommentInfo,
+        GoodsList,
+        DetailBottomBar,
+        BackTop,
+        // Toast
       },
       data() {
         return {
@@ -42,7 +71,14 @@
           goods: {},
           shop: {},
           detailInfo: {},
-          paramInfo: {}
+          paramInfo: {},
+          commentInfo: {},
+          recommendInfo: [],
+          titleOffsetTop: [],
+          titleRefresh: null,
+          titleCurrentIndex: 0,
+          // message: '',
+          // show: false
         }
       },
       created() {
@@ -66,15 +102,93 @@
 
           //保存参数信息
           this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
+
+          //获取评论信息
+            this.commentInfo = data.rate.list[0]
         })
-      },
-      mounted() {
+
+        getRecommendInfo().then(res => {
+          console.log(res);
+          this.recommendInfo = res.data.list
+        })
 
       },
+      mounted() {
+        // this.$nextTick(() => {
+        //   this.titleOffsetTop = []
+        //   this.titleOffsetTop.push(0)
+        //   this.titleOffsetTop.push(this.$refs.params.$el.offsetTop)
+        //   this.titleOffsetTop.push(this.$refs.comment.$el.offsetTop)
+        //   this.titleOffsetTop.push(this.$refs.recommend.$el.offsetTop)
+        // })
+        this.titleRefresh = debounce(() => {
+          if(this.$refs.params && this.$refs.comment && this.$refs.recommend)
+            this.$nextTick(() => {
+              this.titleOffsetTop = []
+              this.titleOffsetTop.push(0)
+              this.titleOffsetTop.push(this.$refs.params.$el.offsetTop)
+              this.titleOffsetTop.push(this.$refs.comment.$el.offsetTop)
+              this.titleOffsetTop.push(this.$refs.recommend.$el.offsetTop)
+              this.titleOffsetTop.push(Number.MAX_VALUE)
+              console.log(this.titleOffsetTop);
+            })
+        },1000)
+      },
+      mixins: [imgListenerMixin, backTopMixim],
       methods: {
-        load() {
+        ...mapActions(['addCart']),
+        oneLoad() {
           this.$refs.scroll.refresh()
+        },
+        getTitleIndexClick(index) {
+          this.$refs.scroll.scrollTo(0, -this.titleOffsetTop[index], 100)
+        },
+        moreLoad() {
+          this.refresh()
+          this.titleRefresh()
+        },
+        contentScroll(position) {
+          this.listenerShowBackTop(position)
+
+          const length = this.titleOffsetTop.length
+          const positionY = -position.y
+
+          for(let i = 0; i < length; i++){
+            let offsetTop = this.titleOffsetTop[i]
+            if(this.titleCurrentIndex !== i && positionY >= offsetTop && positionY < this.titleOffsetTop[i+1]){
+              this.titleCurrentIndex = i
+              break;
+            }
+          }
+        },
+        addToCart() {
+          const product = {}
+          product.image = this.topImages[0]
+          product.title = this.goods.title
+          product.desc = this.goods.desc
+          product.price = this.goods.nowPrice
+          product.iid = this.iid
+
+          this.addCart(product).then(res => {
+            // this.show = true
+            // this.message = res
+            //
+            // setTimeout(() => {
+            //   this.show = false
+            // }, 1000)
+            // console.log(this.$toast);
+            console.log(res);
+            this.$toast.methods.show(res, 10000)
+
+          })
+
+          // this.$store.dispatch('addCart', product).then(res => {
+          //   console.log(res);
+          // })
         }
+      },
+      destroyed() {
+        this.$bus.$off('itemImageLoad',this.imgLoadListener)
       }
     }
 </script>
@@ -94,7 +208,9 @@
   }
 
   .content {
-    height: calc(100% - 44px);
+    height: calc(100% - 44px - 49px);
+    background-color: #fff;
+    overflow: hidden;
     /*position: absolute;*/
     /*top: 44px;*/
     /*bottom: 0;*/

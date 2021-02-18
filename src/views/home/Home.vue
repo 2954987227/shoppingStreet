@@ -37,7 +37,7 @@
   import BackTop from 'components/content/backTop/BackTop'
 
   import {getHomeMultidata, getHomeGoods} from "network/home";
-  import {debounce} from "common/utils/debounce";
+  import {imgListenerMixin, backTopMixim} from "common/mixin";
 
 
   export default {
@@ -65,10 +65,10 @@
         tabControlTitles: ['流行', '新款', '精选'],
         currentType:'pop',
         // Scroll
-        isShowBackTop: false,
+        // isShowBackTop: false,
         offsetTop: 0,
         isTabFixed:false,
-        saveY: 0
+        saveY: 0,
       }
     },
     created() {
@@ -79,14 +79,8 @@
 
 
     },
-    mounted() {
-      const refresh = debounce(this.$refs.scroll.refresh, 20)
-      this.$bus.$on('itemImageLoad', () => {
-        refresh()
-      })
-
-
-    },
+    mounted() {},
+    mixins: [imgListenerMixin, backTopMixim],
     destroyed() {
       console.log('destroyed');
     },
@@ -132,11 +126,8 @@
         this.$refs.tabControl02.currentIndex = index
         this.$refs.tabControl01.currentIndex = index
       },
-      btClick(){
-        this.$refs.scroll.scrollTo(0, 0, 500) //500ms内返回顶部
-      },
       contentScroll(position) {
-        this.isShowBackTop = position.y < -1000
+        this.listenerShowBackTop(position)
 
         this.isTabFixed = position.y < -this.offsetTop
       },
@@ -169,6 +160,9 @@
       // this.$refs.hSwiper.stopTimer()
 
       this.saveY = this.$refs.scroll.getScrollY()
+
+      //取消全局事件监听
+      this.$bus.$off('itemImageLoad', this.imgLoadListener)
     },
   }
 </script>

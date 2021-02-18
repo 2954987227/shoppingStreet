@@ -5,9 +5,9 @@
         <img src="~assets/img/common/back.svg">
       </div>
       <div slot="nav-bar-center" class="titles">
-        <div v-for="(item, index) in this.titles"
+        <div v-for="(item, index) in titles"
              :key="index" class="title-item"
-             :class="{active : currentIndex === index}"
+             :class="{active : index === currentIndex}"
              @click="itemClick(index)">{{item}}</div>
       </div>
     </nav-bar>
@@ -22,15 +22,27 @@
       components: {
         NavBar
       },
-      data() {
-        return {
-          titles: ['商品', '参数', '评论', '推荐'],
-          currentIndex: 0
+      // data() {
+      //   return {
+      //     titles: ['商品', '参数', '评论', '推荐'],
+      //     currentIndex: 0
+      //   }
+      // },
+      props: {
+        titles: {
+          type: Array,
+          default() {
+            return ['商品', '参数', '评论', '推荐']
+          }
+        },
+        currentIndex: {
+          type: Number,
+          default: 0
         }
       },
       methods: {
         itemClick(index) {
-          this.currentIndex = index
+          this.$emit('getTitleIndexClick', index)
         },
         backClick() {
           this.$router.back()

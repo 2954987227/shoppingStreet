@@ -10,39 +10,39 @@
     import BScroll from 'better-scroll'
 
     export default {
-        name: "Scroll",
-        data() {
-          return {
-            scroll: null
-          }
+      name: "Scroll",
+      data() {
+        return {
+          scroll: null
+        }
+      },
+      props: {
+        probeType: {
+          type: Number,
+          default: 0
         },
-        props: {
-          probeType: {
-            type: Number,
-            default: 0
-          },
-          pullUpLoad: {
-            type: Boolean,
-            default: false
-          }
-        },
-        mounted() {
-          this.scroll = new BScroll(this.$refs.wrapper, {
-            probeType: this.probeType,
-            click: true,
-            pullUpLoad: this.pullUpLoad
-          })
+        pullUpLoad: {
+          type: Boolean,
+          default: false
+        }
+      },
+      mounted() {
+        this.scroll = new BScroll(this.$refs.wrapper, {
+          probeType: this.probeType,
+          click: true,
+          pullUpLoad: this.pullUpLoad
+        })
 
-          //监听滑动位置
-          this.scroll.on('scroll', position => {
-            this.$emit('scroll', position)
-          })
+        //监听滑动位置
+        this.scroll.on('scroll', position => {
+          this.$emit('scroll', position)
+        })
 
-          //监听上拉加载更多
-          this.scroll.on('pullingUp', () => {
-            this.$emit('pullingUp')
-          })
-        },
+        //监听上拉加载更多
+        this.scroll.on('pullingUp', () => {
+          this.$emit('pullingUp')
+        })
+      },
       methods: {
         //跳转到指定位置
         scrollTo(x, y, time=300){//默认300ms
