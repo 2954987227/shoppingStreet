@@ -39,4 +39,8 @@
     background-color: deeppink;
     color: white;
   }
+
+  .bottom-bar {
+
+  }
 </style>

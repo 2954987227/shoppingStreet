@@ -208,7 +208,7 @@
   }
 
   .content {
-    height: calc(100% - 44px - 49px);
+    height: calc(100% - 44px - 58px);
     background-color: #fff;
     overflow: hidden;
     /*position: absolute;*/

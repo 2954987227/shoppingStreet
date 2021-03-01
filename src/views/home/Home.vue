@@ -82,7 +82,7 @@
     mounted() {},
     mixins: [imgListenerMixin, backTopMixim],
     destroyed() {
-      console.log('destroyed');
+      console.log('destroyed..............');
     },
     methods: {
       /**

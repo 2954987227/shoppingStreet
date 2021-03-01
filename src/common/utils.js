@@ -24,7 +24,7 @@ function padLeftZero (str) {
 };
 
 // 防抖动函数
-export function debounce(func, delay=100) {
+export function debounce(func, delay=300) {
   let timer = null
   return function (...args) {
     if(timer) clearTimeout(timer)
